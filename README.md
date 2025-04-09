@@ -1,4 +1,4 @@
 # QUASAR
 
 
-Découvez l'astronomie en immersioàn !
+Découvez l'astronomie en immersion !
