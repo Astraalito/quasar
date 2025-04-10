@@ -1,4 +1,4 @@
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useState } from "react";
 import { useFrame, useLoader  } from "@react-three/fiber";
 import { TextureLoader } from 'three'
 import planets from "../planets"
@@ -46,12 +46,14 @@ const PlanetRing = ({radius, distance, axialTilt}) => {
 const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axialTilt, textureUrl }) => {
     const colorMap = useLoader(TextureLoader, textureUrl)
 
+    const [animationSpeed, setAnimationSpeed] = useState(1);
+
     const groupRef = useRef();
     const planetRef = useRef();
   
     useFrame((_state, delta) => {
-
-        groupRef.current.rotation.y += delta * revolutionSpeed;
+        const deltaTime = animationSpeed * delta
+        groupRef.current.rotation.y += deltaTime * revolutionSpeed;
         const rotationSpeed = 1 / rotationPeriod;
         planetRef.current.rotation.y += delta * rotationSpeed;
     });
@@ -60,8 +62,10 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
       <group ref={groupRef}>
         <mesh 
             ref={planetRef} 
-        position={[distance, 0, 0]} 
-        rotation={[THREE.MathUtils.degToRad(axialTilt), 0, 0]}
+            position={[distance, 0, 0]} 
+            rotation={[THREE.MathUtils.degToRad(axialTilt), 0, 0]}
+            onPointerEnter={() => setAnimationSpeed(0)}
+            onPointerLeave={() => setAnimationSpeed(1)}
         >
             <sphereGeometry args={[radius, 64, 64]} />
             <meshStandardMaterial 
