@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { Experience } from "./components/Experience";
 import PlanetLoader from "./components/PlanetLoader";
 import Header from "./components/Header";
@@ -9,9 +9,10 @@ function App() {
 
     return (
         <>
-                <Header />
+                
                 <div className="overflow-hidden">
                     <div className={`flex flex-row h-screen transition-all duration-500 ease-in-out`}>
+                        <Header />
                         <Canvas 
                             shadows 
                             camera={{ position: [70, 5, 70], fov: 30 }}

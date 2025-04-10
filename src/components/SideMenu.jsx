@@ -9,22 +9,35 @@ const SideMenu = () => {
   const planet = planetData[planetTarget];
 
   return (
-    <div className={`block top-0 right-0 h-full bg-zinc-900 text-white shadow-lg z-50 w-[30vw] overflow-y-auto transition-all duration-500`}>
+    <div className={`block top-0 left-0 h-full bg-zinc-900 text-white shadow-lg z-50 w-[30vw] overflow-y-auto transition-all duration-500`}>
+
       {/* Image + Titre */}
       <div className="relative h-[200px] w-full">
-        <img
-            src={planet.image}
-            alt={planet.name}
-            className="w-full h-full object-cover"
-        />
+      {/* Bouton retour */}
+      <div className="absolute top-4 left-4 z-10">
+        <button onClick={resetPlanetTarget} className="p-2">
+          <img 
+            src="/svg/arrow-left.svg" 
+            alt="Retour" 
+            className="w-6 h-6 invert"
+          />
+        </button>
+      </div>
 
-        {/* Dégradé du bas vers le haut */}
-        <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
+      {/* Image de la planète */}
+      <img
+        src={planet.image}
+        alt={planet.name}
+        className="w-full h-full object-cover"
+      />
 
-        {/* Titre */}
-        <h2 className="absolute bottom-4 left-4 text-3xl font-bold capitalize px-3 py-1 rounded text-white">
-            {planet.name}
-        </h2>
+      {/* Dégradé du bas vers le haut */}
+      <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
+
+      {/* Titre de la planète */}
+      <h2 className="absolute bottom-4 left-4 text-3xl font-bold capitalize px-3 py-1 rounded text-white z-10">
+        {planet.name}
+      </h2>
     </div>
 
       {/* Informations */}
@@ -58,13 +71,6 @@ const SideMenu = () => {
                 </p>
             })}
         </div>
-
-        <button
-          className="mt-6 py-2 px-4 bg-white text-zinc-900 rounded hover:bg-zinc-100"
-          onClick={resetPlanetTarget}
-        >
-          Fermer
-        </button>
       </div>
     </div>
   );

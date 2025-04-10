@@ -9,10 +9,10 @@ export const Experience = () => {
 
   return (
     <>
-      {/* <Environment
+      <Environment
         background
         files="/hdri/nebula.hdr"
-      /> */}
+      />
       <ambientLight intensity={0.3} />
       <pointLight position={[0, 0, 0]} intensity={8000} castShadow/>
 
