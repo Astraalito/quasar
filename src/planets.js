@@ -45,7 +45,7 @@ const planets = [
   },
   { 
     name: "jupiter",
-    size: 7.0,
+    size: 6.0,
     distance: 39.92,
     speed: 0.03,  // Ajusté proportionnellement
     color: "#D99C5D",
@@ -56,7 +56,7 @@ const planets = [
   },
   { 
     name: "saturne",
-    size: 5.5,
+    size: 4.5,
     distance: 59.87,
     speed: 0.02,  // Ajusté proportionnellement
     color: "#F1C27D",

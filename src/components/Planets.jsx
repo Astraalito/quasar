@@ -1,10 +1,12 @@
 import { useRef, useMemo, useState } from "react";
 import { useFrame, useLoader  } from "@react-three/fiber";
 import { TextureLoader } from 'three'
+import gsap from "gsap";
 import planets from "../planets"
 import * as THREE from 'three'
+import { Html } from "@react-three/drei";
 
-const PlanetRing = ({radius, distance, axialTilt}) => {
+const PlanetRing = ({radius, distance, axialTilt, ringRef }) => {
     const ringMap = useLoader(TextureLoader, "/textures/saturn_ring.png")
 
     const ringGeometry = useMemo(() => {
@@ -31,6 +33,7 @@ const PlanetRing = ({radius, distance, axialTilt}) => {
 
     return(
         <mesh
+            ref={ringRef}
             geometry={ringGeometry}
             position={[distance, 0, 0]}
             rotation={[THREE.MathUtils.degToRad(axialTilt) - Math.PI / 2, 0, 0]}
@@ -47,16 +50,79 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
     const colorMap = useLoader(TextureLoader, textureUrl)
 
     const [animationSpeed, setAnimationSpeed] = useState(1);
+    const [hovered, setHovered] = useState(false);
 
     const groupRef = useRef();
     const planetRef = useRef();
+    const ringRef = useRef();
   
     useFrame((_state, delta) => {
         const deltaTime = animationSpeed * delta
         groupRef.current.rotation.y += deltaTime * revolutionSpeed;
+
         const rotationSpeed = 1 / rotationPeriod;
         planetRef.current.rotation.y += delta * rotationSpeed;
     });
+
+    const handleOnPointerPlanetEnter = (e) => {
+        e.stopPropagation()
+        setHovered(true);
+
+        //SPEED
+        const proxySpeed = { value: animationSpeed };
+        gsap.to(proxySpeed, { 
+            value: 0,
+            duration: 0.5,
+            ease: "power2.out",
+            onUpdate: () => setAnimationSpeed(proxySpeed.value)
+        });
+
+        //SCALE
+        gsap.to(planetRef.current.scale, { 
+            x: 1.2, y: 1.2, z: 1.2,
+            duration: 0.5,
+            ease: "power2.out",
+        });
+        if (ringRef.current) {
+            gsap.to(ringRef.current.scale, {
+                x: 1.2, y: 1.2, z: 1.2,
+                duration: 0.5,
+                ease: "power2.out",
+            });
+        }
+    }
+
+    const handleOnPointerPlanetLeave = (e) => {
+        e.stopPropagation()
+        setHovered(false);
+
+        const proxySpeed = { value: animationSpeed };
+        gsap.to(proxySpeed, { 
+            value: 1,
+            duration: 0.5,
+            ease: "power2.out",
+            onUpdate: () => setAnimationSpeed(proxySpeed.value)
+        });
+
+        //SCALE
+        gsap.to(planetRef.current.scale, {
+            x: 1, y: 1, z: 1,
+            duration: 0.5,
+            ease: "power2.out",
+        });
+        if (ringRef.current) {
+            gsap.to(ringRef.current.scale, {
+              x: 1, y: 1, z: 1,
+              duration: 0.5,
+              ease: "power2.inOut",
+            });
+          }
+    }
+
+    const handleClickPlanet = (e) => {
+        e.stopPropagation()
+        console.log("Vous avez cliqué sur " + name)
+    }
   
     return (
       <group ref={groupRef}>
@@ -64,17 +130,32 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
             ref={planetRef} 
             position={[distance, 0, 0]} 
             rotation={[THREE.MathUtils.degToRad(axialTilt), 0, 0]}
-            onPointerEnter={() => setAnimationSpeed(0)}
-            onPointerLeave={() => setAnimationSpeed(1)}
+            onPointerEnter={ e => handleOnPointerPlanetEnter(e)}
+            onPointerLeave={ e => handleOnPointerPlanetLeave(e)}
+            onClick={ e => handleClickPlanet(e)}
         >
             <sphereGeometry args={[radius, 64, 64]} />
             <meshStandardMaterial 
                 map={colorMap} 
             />
+            {hovered && (
+                <Html
+                    position={[0, radius + 1, 0]} // position au-dessus de la planète
+                    center
+                    style={{
+                        color: "white",
+                        fontSize: "1rem",
+                        fontFamily: "Arial",
+                        pointerEvents: "none",
+                    }}
+                >
+                    {name.toUpperCase()}
+                </Html>
+            )}
         </mesh>
-        {name === "saturne" && 
-            <PlanetRing radius={radius} distance={distance} axialTilt={axialTilt} />
-        }
+        {name === "saturne" && (
+            <PlanetRing ringRef={ringRef} radius={radius} distance={distance} axialTilt={axialTilt}/>
+        )}
       </group>
     );
 };

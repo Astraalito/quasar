@@ -11,12 +11,12 @@
   "dependencies": {
     "@react-three/drei": "^10.0.3",
     "@react-three/fiber": "^9.0.4",
+    "gsap": "^3.12.7",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "three": "^0.173.0"
   },
   "devDependencies": {
-    "@tweenjs/tween.js": "^25.0.0",
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
