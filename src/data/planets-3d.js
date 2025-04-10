@@ -45,9 +45,9 @@ const planets = [
   },
   { 
     name: "jupiter",
-    size: 7.0,
+    size: 6.0,
     distance: 39.92,
-    speed: 0.03,  // Ajusté proportionnellement
+    speed: 0.09,  // Ajusté proportionnellement
     color: "#D99C5D",
     rotationPeriod: 1.0,
     axialTilt: 3.1,
@@ -56,9 +56,9 @@ const planets = [
   },
   { 
     name: "saturne",
-    size: 5.5,
+    size: 4.5,
     distance: 59.87,
-    speed: 0.02,  // Ajusté proportionnellement
+    speed: 0.06,  // Ajusté proportionnellement
     color: "#F1C27D",
     rotationPeriod: 1.0,
     axialTilt: 26.7,
@@ -68,8 +68,8 @@ const planets = [
   { 
     name: "uranus",
     size: 3.85,
-    distance: 89.93,
-    speed: 0.01,  // Ajusté proportionnellement
+    distance: 87.93,
+    speed: 0.03,  // Ajusté proportionnellement
     color: "#4A9EAE",
     rotationPeriod: 0.72,
     axialTilt: 97.8,
