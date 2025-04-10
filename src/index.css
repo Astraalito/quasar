@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 #root {
   width: 100vw;
   height: 100vh;
@@ -6,60 +8,4 @@
 body {
   margin: 0;
   background-color: #2C2C2C;
-}
-
-
-
-
-
-.loader-container {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: white;
-  z-index: 9999;
-}
-
-.planet {
-  width: 40px;
-  min-width: 40px;
-  height: 40px;
-  background: radial-gradient(circle, #ffffff31 40%, #fff);
-  border-radius: 50%;
-  z-index: 2;
-}
-
-.orbit {
-  position: absolute;
-  width: 80px;
-  height: 80px;
-  border: 1px dashed #fff;
-  border-radius: 50%;
-}
-
-.orbit-transparent {
-  position: absolute;
-  width: 80px;
-  height: 80px;
-  border: none;
-  border-radius: 50%;
-  animation: rotate 2s linear infinite;
-}
-
-.satellite {
-  position: absolute;
-  top: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 10px;
-  height: 10px;
-  background: #ffffff;
-  border-radius: 50%;
-}
-
-@keyframes rotate {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
 }
