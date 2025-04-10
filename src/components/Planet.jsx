@@ -1,10 +1,9 @@
-import { useRef, useMemo, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import { useFrame, useLoader  } from "@react-three/fiber";
 import { TextureLoader } from 'three'
 import { Html } from "@react-three/drei";
 
 import gsap from "gsap";
-import planets from "../planets"
 import * as THREE from 'three'
 import usePlanetStore from "../stores/usePlanetStore";
 
@@ -78,7 +77,9 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
             const planetWorldPosition = new THREE.Vector3();
             planetRef.current.getWorldPosition(planetWorldPosition);
             setViewTarget(planetWorldPosition)
-        }
+        } else if(planetTarget === null) {
+            setViewTarget([0,0,0])
+        }   
     });
 
     const handleOnPointerPlanetEnter = (e) => {
@@ -180,37 +181,4 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
     );
 };
 
-const OrbitPath = ({ distance }) => {
-    return (
-      <mesh rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[distance - 0.01, distance + 0.01, 64]} />
-        <meshBasicMaterial color="white" side={THREE.DoubleSide} />
-      </mesh>
-    );
-};
-
-const Planets = () => {
-    return(
-        <>
-            {planets.map((planet) => {
-                return <group key={planet.name}>
-                    <Planet 
-                        name={planet.name} 
-                        radius={planet.size} 
-                        distance={planet.distance}
-                        revolutionSpeed={planet.speed}
-                        rotationPeriod={planet.rotationPeriod}
-                        axialTilt={planet.axialTilt}
-                        textureUrl={planet.textureUrl}
-                    />
-                    <OrbitPath 
-                        distance={planet.distance}
-                    />
-                </group>
-                
-            })}
-        </>
-    )
-}
-
-export default Planets
+export default Planet
