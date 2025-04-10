@@ -1,10 +1,12 @@
 import { useRef, useMemo, useState } from "react";
 import { useFrame, useLoader  } from "@react-three/fiber";
 import { TextureLoader } from 'three'
+import { Html } from "@react-three/drei";
+
 import gsap from "gsap";
 import planets from "../planets"
 import * as THREE from 'three'
-import { Html } from "@react-three/drei";
+import usePlanetStore from "../stores/usePlanetStore";
 
 const PlanetRing = ({radius, distance, axialTilt, ringRef }) => {
     const ringMap = useLoader(TextureLoader, "/textures/saturn_ring.png")
@@ -52,21 +54,37 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
     const [animationSpeed, setAnimationSpeed] = useState(1);
     const [hovered, setHovered] = useState(false);
 
+    const { 
+            setHoveredPlanet, clearHoveredPlanet,
+            setViewTarget,
+            planetTarget, setPlanetTarget
+          } = usePlanetStore()
+
     const groupRef = useRef();
     const planetRef = useRef();
     const ringRef = useRef();
   
     useFrame((_state, delta) => {
+        //move Planet around sun
         const deltaTime = animationSpeed * delta
         groupRef.current.rotation.y += deltaTime * revolutionSpeed;
 
+        //Rotate Planet on it's own axis
         const rotationSpeed = 1 / rotationPeriod;
         planetRef.current.rotation.y += delta * rotationSpeed;
+
+        //Follow Planet if targeted
+        if(planetTarget === name) {
+            const planetWorldPosition = new THREE.Vector3();
+            planetRef.current.getWorldPosition(planetWorldPosition);
+            setViewTarget(planetWorldPosition)
+        }
     });
 
     const handleOnPointerPlanetEnter = (e) => {
         e.stopPropagation()
         setHovered(true);
+        setHoveredPlanet(name);
 
         //SPEED
         const proxySpeed = { value: animationSpeed };
@@ -94,7 +112,8 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
 
     const handleOnPointerPlanetLeave = (e) => {
         e.stopPropagation()
-        setHovered(false);
+        setHovered(false)
+        clearHoveredPlanet()
 
         const proxySpeed = { value: animationSpeed };
         gsap.to(proxySpeed, { 
@@ -122,6 +141,7 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
     const handleClickPlanet = (e) => {
         e.stopPropagation()
         console.log("Vous avez cliqué sur " + name)
+        setPlanetTarget(name)
     }
   
     return (

@@ -4,6 +4,7 @@ import { Experience } from "./components/Experience";
 import PlanetLoader from "./components/PlanetLoader";
 
 function App() {
+
     return (
         <>
             <Canvas 
@@ -13,7 +14,7 @@ function App() {
             >
                 <color attach="background" args={["#2C2C2C"]} />
                 <Suspense fallback={<PlanetLoader />}>
-                <Experience />
+                    <Experience />
                 </Suspense>
             </Canvas>
         </>

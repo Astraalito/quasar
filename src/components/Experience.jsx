@@ -1,8 +1,12 @@
 import { Environment, OrbitControls, Stars } from "@react-three/drei";
 import Sun from "./Sun";
 import Planets from "./Planets";
+import usePlanetStore from "../stores/usePlanetStore";
 
 export const Experience = () => {
+
+  const { viewTarget } = usePlanetStore()
+
   return (
     <>
       {/* <Environment
@@ -12,7 +16,7 @@ export const Experience = () => {
       <ambientLight intensity={0.3} />
       <pointLight position={[0, 0, 0]} intensity={8000} castShadow/>
 
-      <OrbitControls maxDistance={250}/>
+      <OrbitControls maxDistance={250} target={viewTarget}/>
 
       {/* Soleil */}
       <Sun />
