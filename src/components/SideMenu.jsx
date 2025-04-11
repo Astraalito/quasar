@@ -35,7 +35,7 @@ const SideMenu = () => {
       <div className="absolute bottom-0 left-0 w-full h-full bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
 
       {/* Titre de la planète */}
-      <h2 className="absolute bottom-4 left-4 text-3xl font-bold capitalize px-3 py-1 rounded text-white z-10">
+      <h2 className="absolute bottom-4 left-4 text-3xl font-semibold capitalize px-3 py-1 rounded text-white z-10" style={{fontFamily: "Montserrat, sans-serif"}}>
         {planet.name}
       </h2>
     </div>
