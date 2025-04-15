@@ -7,7 +7,7 @@ import gsap from "gsap";
 import * as THREE from 'three'
 import usePlanetStore from "../stores/usePlanetStore";
 
-const PlanetRing = ({radius, distance, axialTilt, ringRef }) => {
+const PlanetRing = ({radius, axialTilt, ringRef }) => {
     const ringMap = useLoader(TextureLoader, "/textures/saturn_ring.png")
 
     const ringGeometry = useMemo(() => {
@@ -36,7 +36,6 @@ const PlanetRing = ({radius, distance, axialTilt, ringRef }) => {
         <mesh
             ref={ringRef}
             geometry={ringGeometry}
-            position={[distance, 0, 0]}
             rotation={[THREE.MathUtils.degToRad(axialTilt) - Math.PI / 2, 0, 0]}
         >
             <meshStandardMaterial
@@ -56,7 +55,8 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
     const { 
             setHoveredPlanet, clearHoveredPlanet,
             setViewTarget,
-            planetTarget, setPlanetTarget
+            planetTarget, setPlanetTarget,
+            planetDistanceMultiplier
           } = usePlanetStore()
 
     const groupRef = useRef();
@@ -98,13 +98,13 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
 
         //SCALE
         gsap.to(planetRef.current.scale, { 
-            x: 1.2, y: 1.2, z: 1.2,
+            x: 1.5, y: 1.5, z: 1.5,
             duration: 0.5,
             ease: "power2.out",
         });
         if (ringRef.current) {
             gsap.to(ringRef.current.scale, {
-                x: 1.2, y: 1.2, z: 1.2,
+                x: 1.5, y: 1.5, z: 1.5,
                 duration: 0.5,
                 ease: "power2.out",
             });
@@ -147,36 +147,44 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
   
     return (
       <group ref={groupRef}>
-        <mesh 
-            ref={planetRef} 
-            position={[distance, 0, 0]} 
-            rotation={[THREE.MathUtils.degToRad(axialTilt), 0, 0]}
+        <group 
+            position={[distance * planetDistanceMultiplier, 0, 0]}
             onPointerEnter={ e => handleOnPointerPlanetEnter(e)}
             onPointerLeave={ e => handleOnPointerPlanetLeave(e)}
-            onClick={ e => handleClickPlanet(e)}
         >
-            <sphereGeometry args={[radius, 64, 64]} />
-            <meshStandardMaterial 
-                map={colorMap} 
-            />
-            {hovered && (
-                <Html
-                    position={[0, radius + 1, 0]} // position au-dessus de la planète
-                    center
-                    style={{
-                        color: "white",
-                        fontSize: "1rem",
-                        fontFamily: "Arial",
-                        pointerEvents: "none",
-                    }}
-                >
-                    {name.toUpperCase()}
-                </Html>
-            )}
-        </mesh>
-        {name === "saturne" && (
-            <PlanetRing ringRef={ringRef} radius={radius} distance={distance} axialTilt={axialTilt}/>
-        )}
+            {/* <mesh position={[radius * 10, 0, 0]}>
+                <boxGeometry />
+                <meshStandardMaterial color={"yellow"} />
+            </mesh> */}
+            <mesh 
+                ref={planetRef} 
+                rotation={[THREE.MathUtils.degToRad(axialTilt), 0, 0]}
+                onClick={ e => handleClickPlanet(e)}
+            >
+                <sphereGeometry args={[radius, 64, 64]} />
+                <meshStandardMaterial 
+                    map={colorMap} 
+                />
+                {hovered && (
+                    <Html
+                        position={[0, radius + 1, 0]} // position au-dessus de la planète
+                        center
+                        style={{
+                            color: "white",
+                            fontSize: "1rem",
+                            fontFamily: "Arial",
+                            pointerEvents: "none",
+                            fontFamily: "Montserrat, sans-serif"
+                        }}
+                    >
+                        {name.toUpperCase()}
+                    </Html>
+                )}
+            </mesh>
+            {name === "saturne" && (
+                <PlanetRing ringRef={ringRef} radius={radius} axialTilt={axialTilt}/>
+            )}npm
+        </group>
       </group>
     );
 };

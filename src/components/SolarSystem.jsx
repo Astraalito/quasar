@@ -2,11 +2,15 @@ import planets from "../data/planets-3d"
 import * as THREE from 'three'
 import Planet from "./Planet";
 import Sun from "./Sun";
+import usePlanetStore from "../stores/usePlanetStore";
 
 const OrbitPath = ({ distance }) => {
+    const { 
+        planetDistanceMultiplier
+      } = usePlanetStore()
     return (
       <mesh rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[distance - 0.01, distance + 0.01, 64]} />
+        <ringGeometry args={[(distance * planetDistanceMultiplier) - 0.01, (distance * planetDistanceMultiplier) + 0.01, 64]} />
         <meshBasicMaterial color="white" side={THREE.DoubleSide} />
       </mesh>
     );

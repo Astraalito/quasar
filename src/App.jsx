@@ -6,11 +6,14 @@ import { Experience } from "./components/Experience";
 import PlanetLoader from "./components/PlanetLoader";
 import Header from "./components/Header";
 import SideMenu from "./components/SideMenu";
+import MobileMenu from "./components/MobileMenu";
 import VRButton from "./components/VRButton";
 
 const store = createXRStore()
 
 function App() {
+
+    const isMobile = window.innerWidth <= 768;
 
     return (
         <>
@@ -31,7 +34,11 @@ function App() {
                                 </XR>
                             </Suspense>
                         </Canvas>
-                        <SideMenu />
+                        { isMobile ?
+                            <MobileMenu/>
+                            :
+                            <SideMenu />
+                        }
                     </div>
                 </div>
         
