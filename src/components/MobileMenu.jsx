@@ -49,7 +49,10 @@ const MobileMenu = () => {
           <div className="relative h-[200px] w-full">
             {/* Bouton retour */}
             <div className="absolute top-4 left-4 z-10">
-              <button onClick={resetPlanetTarget} className="p-2">
+              <button onClick={ () => {
+                    resetPlanetTarget
+                    setIsExpanded(false)
+                } } className="p-2">
                 <img
                   src="/svg/arrow-left.svg"
                   alt="Retour"

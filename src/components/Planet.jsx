@@ -172,7 +172,6 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
                         style={{
                             color: "white",
                             fontSize: "1rem",
-                            fontFamily: "Arial",
                             pointerEvents: "none",
                             fontFamily: "Montserrat, sans-serif"
                         }}
