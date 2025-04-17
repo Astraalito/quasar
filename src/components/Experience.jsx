@@ -1,5 +1,4 @@
 import { Environment, OrbitControls, Stars } from "@react-three/drei";
-import Sun from "./Sun";
 import SolarSystem from "./SolarSystem";
 import usePlanetStore from "../stores/usePlanetStore";
 
@@ -9,12 +8,12 @@ export const Experience = () => {
 
   return (
     <>
-      <Environment
+      {/* <Environment
         background
         files="/hdri/nebula.hdr"
-      />
+      /> */}
       <ambientLight intensity={0.3} />
-      <pointLight position={[0, 0, 0]} intensity={8000} castShadow/>
+      <pointLight position={[0, 0, 0]} intensity={7} castShadow decay={0}/>
 
       <OrbitControls maxDistance={250} target={viewTarget}/>
 

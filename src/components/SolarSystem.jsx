@@ -3,6 +3,8 @@ import * as THREE from 'three'
 import Planet from "./Planet";
 import Sun from "./Sun";
 import usePlanetStore from "../stores/usePlanetStore";
+import { LeftHand } from "./Immersive/LeftHand";
+
 
 const OrbitPath = ({ distance }) => {
     const { 
@@ -19,7 +21,8 @@ const OrbitPath = ({ distance }) => {
 const SolarSystem = () => {
     return(
         <>
-            <Sun />
+            {/* <Sun /> */}
+            <LeftHand />
             {planets.map((planet) => {
                 return <group key={planet.name}>
                     <Planet

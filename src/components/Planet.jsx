@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState } from "react";
 import { useFrame, useLoader  } from "@react-three/fiber";
 import { TextureLoader } from 'three'
 import { Html } from "@react-three/drei";
@@ -6,45 +6,8 @@ import { Html } from "@react-three/drei";
 import gsap from "gsap";
 import * as THREE from 'three'
 import usePlanetStore from "../stores/usePlanetStore";
+import PlanetRing from "./PlanetRing";
 
-const PlanetRing = ({radius, axialTilt, ringRef }) => {
-    const ringMap = useLoader(TextureLoader, "/textures/saturn_ring.png")
-
-    const ringGeometry = useMemo(() => {
-        const tube = 3
-        const radialSegments = 2
-        const tubularSegments = 1024
-        const geometry = new THREE.TorusGeometry(radius + 2, tube, radialSegments, tubularSegments);
-        const pos = geometry.attributes.position;
-        const uv = geometry.attributes.uv;
-        const v3 = new THREE.Vector3();
-
-        for (let i = 0; i < pos.count; i++) {
-            v3.fromBufferAttribute(pos, i);
-            const dist = Math.sqrt(v3.x * v3.x + v3.y * v3.y);
-            const midRadius = radius;
-            const u = dist < midRadius ? 0.0 : 1.0;
-            const v = 1.0;
-
-            uv.setXY(i, u, v);
-        }
-
-        return geometry;
-    }, [radius]);
-
-    return(
-        <mesh
-            ref={ringRef}
-            geometry={ringGeometry}
-            rotation={[THREE.MathUtils.degToRad(axialTilt) - Math.PI / 2, 0, 0]}
-        >
-            <meshStandardMaterial
-                map={ringMap}
-                transparent
-            />
-        </mesh>
-    )
-}
 
 const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axialTilt, textureUrl }) => {
     const colorMap = useLoader(TextureLoader, textureUrl)
@@ -156,6 +119,12 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
                 <boxGeometry />
                 <meshStandardMaterial color={"yellow"} />
             </mesh> */}
+
+            {/* { (planetTarget === name) && 
+                <group position={[radius * 5, 0, 0]}>
+                    <XROrigin />
+                </group>
+            } */}
             <mesh 
                 ref={planetRef} 
                 rotation={[THREE.MathUtils.degToRad(axialTilt), 0, 0]}
@@ -182,7 +151,7 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
             </mesh>
             {name === "saturne" && (
                 <PlanetRing ringRef={ringRef} radius={radius} axialTilt={axialTilt}/>
-            )}npm
+            )}
         </group>
       </group>
     );

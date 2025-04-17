@@ -4,10 +4,8 @@ const VRButton = ({ onClick }) => {
     const [isVRSupported, setIsVRSupported] = useState(false);
   
     useEffect(() => {
-      console.log(navigator)
       if (navigator.xr && navigator.xr.isSessionSupported) {
         navigator.xr.isSessionSupported("immersive-vr").then((supported) => {
-            console.log(supported)
           setIsVRSupported(supported);
         });
       }

@@ -65,8 +65,8 @@ const SideMenu = () => {
 
         {/* Description */}
         <div className="space-y-4 pt-4 text-sm text-zinc-300">
-            {planet.description.map( (paragraph) => {
-                return <p>
+            {planet.description.map( (paragraph, index) => {
+                return <p key={index}>
                     {paragraph}
                 </p>
             })}

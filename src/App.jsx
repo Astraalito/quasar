@@ -8,8 +8,12 @@ import Header from "./components/Header";
 import SideMenu from "./components/SideMenu";
 import MobileMenu from "./components/MobileMenu";
 import VRButton from "./components/VRButton";
+import { LeftHand } from "./components/Immersive/LeftHand";
 
-const store = createXRStore()
+
+const store = createXRStore({
+    controller: { left: LeftHand }
+})
 
 function App() {
 
@@ -35,9 +39,7 @@ function App() {
                             </Suspense>
                         </Canvas>
                         { isMobile ?
-                            <MobileMenu/>
-                            :
-                            <SideMenu />
+                            <MobileMenu/> : <SideMenu />
                         }
                     </div>
                 </div>
