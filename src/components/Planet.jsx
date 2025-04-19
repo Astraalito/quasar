@@ -7,6 +7,7 @@ import gsap from "gsap";
 import * as THREE from 'three'
 import usePlanetStore from "../stores/usePlanetStore";
 import PlanetRing from "./PlanetRing";
+import useExperienceStore from "../stores/useExperienceStore";
 
 
 const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axialTilt, textureUrl }) => {
@@ -19,17 +20,25 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
             setHoveredPlanet, clearHoveredPlanet,
             setViewTarget,
             planetTarget, setPlanetTarget,
-            planetDistanceMultiplier
+            planetDistanceMultiplier,
           } = usePlanetStore()
+
+    const {
+        setPositionXROrigin,
+        requireNewOriginPos, setRequireNewOriginPos
+    } = useExperienceStore()
 
     const groupRef = useRef();
     const planetRef = useRef();
     const ringRef = useRef();
+    const xrOriginRef = useRef();
   
     useFrame((_state, delta) => {
         //move Planet around sun
-        const deltaTime = animationSpeed * delta
-        groupRef.current.rotation.y += deltaTime * revolutionSpeed;
+        if(planetTarget != name) {
+            const deltaTime = animationSpeed * delta
+            groupRef.current.rotation.y += deltaTime * revolutionSpeed;
+        }
 
         //Rotate Planet on it's own axis
         const rotationSpeed = 1 / rotationPeriod;
@@ -42,7 +51,17 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
             setViewTarget(planetWorldPosition)
         } else if(planetTarget === null) {
             setViewTarget([0,0,0])
-        }   
+        }  
+        
+        if(planetTarget === name && requireNewOriginPos) {
+            if(xrOriginRef.current){
+                const originWorldPosition = new THREE.Vector3()
+                xrOriginRef.current.getWorldPosition(originWorldPosition)
+                console.log(originWorldPosition)
+                setPositionXROrigin(originWorldPosition)
+            }
+            setRequireNewOriginPos(false)
+        }
     });
 
     const handleOnPointerPlanetEnter = (e) => {
@@ -115,16 +134,13 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
             onPointerEnter={ e => handleOnPointerPlanetEnter(e)}
             onPointerLeave={ e => handleOnPointerPlanetLeave(e)}
         >
-            {/* <mesh position={[radius * 10, 0, 0]}>
-                <boxGeometry />
-                <meshStandardMaterial color={"yellow"} />
-            </mesh> */}
+            <group ref={xrOriginRef} position={[-radius * 3, 0, 0]}>
+                {/* <mesh>
+                    <boxGeometry />
+                    <meshStandardMaterial color={"yellow"} />
+                </mesh> */}
+            </group>
 
-            {/* { (planetTarget === name) && 
-                <group position={[radius * 5, 0, 0]}>
-                    <XROrigin />
-                </group>
-            } */}
             <mesh 
                 ref={planetRef} 
                 rotation={[THREE.MathUtils.degToRad(axialTilt), 0, 0]}

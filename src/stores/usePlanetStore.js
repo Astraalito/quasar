@@ -37,7 +37,6 @@ const usePlanetStore = create((set, get) => ({
     planetDistanceMultiplier: 1,
     setPlanetDistanceMultiplier: (value) => set({ planetDistanceMultiplier: value }),
     resetPlanetDistanceMultiplier: () => set({ planetDistanceMultiplier: 1 }),
-
 }));
 
 export default usePlanetStore;
