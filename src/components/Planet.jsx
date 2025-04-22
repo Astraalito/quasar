@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState } from "react";
 import { useFrame, useLoader  } from "@react-three/fiber";
 import { TextureLoader } from 'three'
 import { Html } from "@react-three/drei";
@@ -6,45 +6,27 @@ import { Html } from "@react-three/drei";
 import gsap from "gsap";
 import * as THREE from 'three'
 import usePlanetStore from "../stores/usePlanetStore";
+import PlanetRing from "./PlanetRing";
+import useExperienceStore from "../stores/useExperienceStore";
 
-const PlanetRing = ({radius, distance, axialTilt, ringRef }) => {
-    const ringMap = useLoader(TextureLoader, "/textures/saturn_ring.png")
+const computeOriginPosition = (ref) => {
+    const originWorldPosition = new THREE.Vector3()
+    ref.current.getWorldPosition(originWorldPosition)
+    return originWorldPosition
+}
 
-    const ringGeometry = useMemo(() => {
-        const tube = 3
-        const radialSegments = 2
-        const tubularSegments = 1024
-        const geometry = new THREE.TorusGeometry(radius + 2, tube, radialSegments, tubularSegments);
-        const pos = geometry.attributes.position;
-        const uv = geometry.attributes.uv;
-        const v3 = new THREE.Vector3();
+const computeOriginRotation = (ref) => {
+    const originWorldQuaternion = new THREE.Quaternion()
+    ref.current.getWorldQuaternion(originWorldQuaternion)
 
-        for (let i = 0; i < pos.count; i++) {
-            v3.fromBufferAttribute(pos, i);
-            const dist = Math.sqrt(v3.x * v3.x + v3.y * v3.y);
-            const midRadius = radius;
-            const u = dist < midRadius ? 0.0 : 1.0;
-            const v = 1.0;
-
-            uv.setXY(i, u, v);
-        }
-
-        return geometry;
-    }, [radius]);
-
-    return(
-        <mesh
-            ref={ringRef}
-            geometry={ringGeometry}
-            position={[distance, 0, 0]}
-            rotation={[THREE.MathUtils.degToRad(axialTilt) - Math.PI / 2, 0, 0]}
-        >
-            <meshStandardMaterial
-                map={ringMap}
-                transparent
-            />
-        </mesh>
-    )
+    const originWorldEuler = new THREE.Euler()
+    originWorldEuler.setFromQuaternion(originWorldQuaternion)
+    
+    originWorldEuler.x == 0 ? 
+        originWorldEuler.y -= Math.PI /2 :
+        originWorldEuler.y += Math.PI /2
+    
+    return originWorldEuler
 }
 
 const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axialTilt, textureUrl }) => {
@@ -56,17 +38,27 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
     const { 
             setHoveredPlanet, clearHoveredPlanet,
             setViewTarget,
-            planetTarget, setPlanetTarget
+            planetTarget, setPlanetTarget,
+            planetDistanceMultiplier,
           } = usePlanetStore()
+
+    const {
+        setPositionXROrigin,
+        setRotationXROrigin,
+        requireNewOriginPos, setRequireNewOriginPos
+    } = useExperienceStore()
 
     const groupRef = useRef();
     const planetRef = useRef();
     const ringRef = useRef();
+    const xrOriginRef = useRef();
   
     useFrame((_state, delta) => {
         //move Planet around sun
-        const deltaTime = animationSpeed * delta
-        groupRef.current.rotation.y += deltaTime * revolutionSpeed;
+        if(planetTarget != name) {
+            const deltaTime = animationSpeed * delta
+            groupRef.current.rotation.y += deltaTime * revolutionSpeed;
+        }
 
         //Rotate Planet on it's own axis
         const rotationSpeed = 1 / rotationPeriod;
@@ -79,7 +71,19 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
             setViewTarget(planetWorldPosition)
         } else if(planetTarget === null) {
             setViewTarget([0,0,0])
-        }   
+        }  
+        
+        if(planetTarget === name && requireNewOriginPos) {
+            if(xrOriginRef.current){
+                //position
+                const originWorldPosition = computeOriginPosition(xrOriginRef)
+                setPositionXROrigin(originWorldPosition)
+                //rotation
+                const originWorldRotation = computeOriginRotation(xrOriginRef)
+                setRotationXROrigin(originWorldRotation)
+            }
+            setRequireNewOriginPos(false)
+        }
     });
 
     const handleOnPointerPlanetEnter = (e) => {
@@ -98,13 +102,13 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
 
         //SCALE
         gsap.to(planetRef.current.scale, { 
-            x: 1.2, y: 1.2, z: 1.2,
+            x: 1.5, y: 1.5, z: 1.5,
             duration: 0.5,
             ease: "power2.out",
         });
         if (ringRef.current) {
             gsap.to(ringRef.current.scale, {
-                x: 1.2, y: 1.2, z: 1.2,
+                x: 1.5, y: 1.5, z: 1.5,
                 duration: 0.5,
                 ease: "power2.out",
             });
@@ -141,42 +145,51 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
 
     const handleClickPlanet = (e) => {
         e.stopPropagation()
-        console.log("Vous avez cliqué sur " + name)
         setPlanetTarget(name)
     }
   
     return (
       <group ref={groupRef}>
-        <mesh 
-            ref={planetRef} 
-            position={[distance, 0, 0]} 
-            rotation={[THREE.MathUtils.degToRad(axialTilt), 0, 0]}
+        <group 
+            position={[distance * planetDistanceMultiplier, 0, 0]}
             onPointerEnter={ e => handleOnPointerPlanetEnter(e)}
             onPointerLeave={ e => handleOnPointerPlanetLeave(e)}
-            onClick={ e => handleClickPlanet(e)}
         >
-            <sphereGeometry args={[radius, 64, 64]} />
-            <meshStandardMaterial 
-                map={colorMap} 
-            />
-            {hovered && (
-                <Html
-                    position={[0, radius + 1, 0]} // position au-dessus de la planète
-                    center
-                    style={{
-                        color: "white",
-                        fontSize: "1rem",
-                        fontFamily: "Arial",
-                        pointerEvents: "none",
-                    }}
-                >
-                    {name.toUpperCase()}
-                </Html>
+            <group ref={xrOriginRef} position={[-radius * 3, 0, 0]}>
+                {/* <mesh>
+                    <boxGeometry />
+                    <meshStandardMaterial color={"yellow"} />
+                </mesh> */}
+            </group>
+
+            <mesh 
+                ref={planetRef} 
+                rotation={[THREE.MathUtils.degToRad(axialTilt), 0, 0]}
+                onClick={ e => handleClickPlanet(e)}
+            >
+                <sphereGeometry args={[radius, 64, 64]} />
+                <meshStandardMaterial 
+                    map={colorMap} 
+                />
+                {hovered && (
+                    <Html
+                        position={[0, radius + 1, 0]} // position au-dessus de la planète
+                        center
+                        style={{
+                            color: "white",
+                            fontSize: "1rem",
+                            pointerEvents: "none",
+                            fontFamily: "Montserrat, sans-serif"
+                        }}
+                    >
+                        {name.toUpperCase()}
+                    </Html>
+                )}
+            </mesh>
+            {name === "saturne" && (
+                <PlanetRing ringRef={ringRef} radius={radius} axialTilt={axialTilt}/>
             )}
-        </mesh>
-        {name === "saturne" && (
-            <PlanetRing ringRef={ringRef} radius={radius} distance={distance} axialTilt={axialTilt}/>
-        )}
+        </group>
       </group>
     );
 };
