@@ -1,7 +1,5 @@
-import { useGLTF } from "@react-three/drei";
 import React, { useEffect, useRef, useState } from "react";
-import { useXRInputSourceState } from "@react-three/xr";
-import { degToRad } from "three/src/math/MathUtils.js";
+import { DefaultXRController, useXRInputSourceState } from "@react-three/xr";
 import { useFrame } from '@react-three/fiber'
 import planets from "../../data/planets-3d"
 import { Text } from "@react-three/drei";
@@ -9,13 +7,20 @@ import PlanetHologram from "./PlanetHologram";
 import usePlanetStore from "../../stores/usePlanetStore";
 import useExperienceStore from "../../stores/useExperienceStore";
 
-export function LeftHand(props) {
-    const { nodes, materials } = useGLTF("/models/leftController/leftController.gltf");
+export function LeftHand() {
 
     const timerRef = useRef(null);
+    const controllerRef = useRef(null);
     const controllerLeft = useXRInputSourceState('controller', 'left');
     const [isActive, setIsActive] = useState(false);
     const [selectedPlanetIndex, setSelectedPlanetIndex] = useState(0);
+
+    const selectAudio = new Audio('/audio/controller/select.mp3');
+    selectAudio.volume = 0.5;
+    const cancelAudio = new Audio('/audio/controller/cancel.mp3');
+    cancelAudio.volume = 0.5;
+    const changeAudio = new Audio('/audio/controller/change.mp3');
+    changeAudio .volume = 0.5;
 
     const { 
         planetTarget, setPlanetTarget, resetPlanetTarget
@@ -62,24 +67,36 @@ export function LeftHand(props) {
         }
 
         if (controllerLeft?.gamepad?.['x-button']?.state === 'pressed') {
-            setPlanetTarget(planets[selectedPlanetIndex].name)
-            setRequireNewOriginPos(true)
+            if(planetTarget != planets[selectedPlanetIndex].name){
+                selectAudio.currentTime = 0;
+                selectAudio.play();
+                setPlanetTarget(planets[selectedPlanetIndex].name)
+                setRequireNewOriginPos(true)
+            }
         } else if(controllerLeft?.gamepad?.['y-button']?.state === 'pressed') {
-            resetPlanetTarget()
-            resetPositionXROrigin()
+            if(planetTarget) {
+                cancelAudio.currentTime = 0;
+                cancelAudio.play();
+                resetPlanetTarget()
+                resetPositionXROrigin()
+            }
         }
     });
 
     const changeLeft = () => {
         setSelectedPlanetIndex((prevIndex) => (prevIndex + 1) % planets.length);
+        changeAudio.currentTime = 0;
+        changeAudio.play();
     };
 
     const changeRight = () => {
         setSelectedPlanetIndex((prevIndex) => (prevIndex - 1 + planets.length) % planets.length);
+        changeAudio.currentTime = 0;
+        changeAudio.play();
     };
 
     return (
-        <group {...props} dispose={null}>
+        <group>
             <Text 
                     color="white" 
                     anchorX="center" 
@@ -96,14 +113,8 @@ export function LeftHand(props) {
                     planet={planets[selectedPlanetIndex]} 
                 />  
             </group>
-            <group scale={0.03}>
-
-                <group rotation={[0,Math.PI,0]} position={[-0.1, -0.3, 0.5]} scale={3.5}>
-                    <mesh
-                        geometry={nodes.Object_20.geometry}
-                        material={materials.shellquest2ControllerMAT}
-                    />
-                </group>
+            <group>
+                <DefaultXRController ref={controllerRef} rayPointer={false}/>
             </group>
         </group>
     );

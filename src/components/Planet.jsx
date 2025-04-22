@@ -9,6 +9,25 @@ import usePlanetStore from "../stores/usePlanetStore";
 import PlanetRing from "./PlanetRing";
 import useExperienceStore from "../stores/useExperienceStore";
 
+const computeOriginPosition = (ref) => {
+    const originWorldPosition = new THREE.Vector3()
+    ref.current.getWorldPosition(originWorldPosition)
+    return originWorldPosition
+}
+
+const computeOriginRotation = (ref) => {
+    const originWorldQuaternion = new THREE.Quaternion()
+    ref.current.getWorldQuaternion(originWorldQuaternion)
+
+    const originWorldEuler = new THREE.Euler()
+    originWorldEuler.setFromQuaternion(originWorldQuaternion)
+    
+    originWorldEuler.x == 0 ? 
+        originWorldEuler.y -= Math.PI /2 :
+        originWorldEuler.y += Math.PI /2
+    
+    return originWorldEuler
+}
 
 const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axialTilt, textureUrl }) => {
     const colorMap = useLoader(TextureLoader, textureUrl)
@@ -25,6 +44,7 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
 
     const {
         setPositionXROrigin,
+        setRotationXROrigin,
         requireNewOriginPos, setRequireNewOriginPos
     } = useExperienceStore()
 
@@ -55,10 +75,12 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
         
         if(planetTarget === name && requireNewOriginPos) {
             if(xrOriginRef.current){
-                const originWorldPosition = new THREE.Vector3()
-                xrOriginRef.current.getWorldPosition(originWorldPosition)
-                console.log(originWorldPosition)
+                //position
+                const originWorldPosition = computeOriginPosition(xrOriginRef)
                 setPositionXROrigin(originWorldPosition)
+                //rotation
+                const originWorldRotation = computeOriginRotation(xrOriginRef)
+                setRotationXROrigin(originWorldRotation)
             }
             setRequireNewOriginPos(false)
         }
@@ -123,7 +145,6 @@ const Planet = ({ name, radius, distance, revolutionSpeed, rotationPeriod, axial
 
     const handleClickPlanet = (e) => {
         e.stopPropagation()
-        console.log("Vous avez cliqué sur " + name)
         setPlanetTarget(name)
     }
   
